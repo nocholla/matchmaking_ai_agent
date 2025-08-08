@@ -24,6 +24,5 @@ Saves models and recommendations.
 streamlit_app.py: 
 Streamlit UI with caching.
 
-Directory Structure:
 <img width="755" height="724" alt="image" src="https://github.com/user-attachments/assets/2d2bc93f-0cc8-4b4a-a4d9-3ef8c33698ea" />
 
