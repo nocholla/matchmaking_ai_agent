@@ -1,13 +1,14 @@
 import pandas as pd
 import os
 import streamlit as st
+import time
 
 def load_data(data_dir="data"):
     """
     Load and merge CSV datasets.
     Returns: profiles_df, liked_df, matched_df, blocked_ids, declined_ids, deleted_ids, reported_ids
     """
-    start_time = st.get_option("server.startTime")
+    start_time = time.time()  # Record start time
     required_cols = ['__id__', 'userId', 'userName', 'age', 'country', 'language', 
                      'aboutMe', 'sex', 'seeking', 'relationshipGoals', 'subscribed',
                      'subscribedEliteOne', 'subscribedEliteThree', 'subscribedEliteSix',
@@ -29,7 +30,8 @@ def load_data(data_dir="data"):
         return None, None, None, None, None, None, None
     
     profiles = profiles.drop_duplicates().fillna("unknown")
-    st.write(f"Data Loading Time: {(st.get_option('server.startTime') - start_time):.2f} seconds")
+    elapsed_time = time.time() - start_time  # Calculate elapsed time
+    st.write(f"Data Loading Time: {elapsed_time:.2f} seconds")
     return (profiles, liked, matched, 
             blocked['__id__'].tolist(), declined['__id__'].tolist(), 
             deleted['__id__'].tolist(), reported['__id__'].tolist())
