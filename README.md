@@ -30,34 +30,7 @@ Extras
 
 Project Structure
 
-AfricaLoveMatch/
-├── data/
-│   ├── Profiles.csv
-│   ├── LikedUsers.csv
-│   ├── MatchedUsers.csv
-│   ├── BlockedUsers.csv
-│   ├── DeclinedUsers.csv
-│   ├── DeletedUsers.csv
-│   └── ReportedUsers.csv
-├── models/
-│   ├── matchmaking_model.pkl
-│   ├── scaler.pkl
-│   ├── label_encoders.pkl
-│   ├── tfidf_vectorizer.pkl
-│   ├── user_to_idx.pkl
-│   └── profile_to_idx.pkl
-├── src/
-│   ├── __init__.py
-│   ├── data_loader.py      # Loads and merges CSV datasets
-│   ├── preprocessing.py    # Feature engineering (LabelEncoder, TF-IDF, interaction matrix)
-│   ├── recommender.py      # Trains and predicts with Gradient Boosting Regressor
-│   ├── agent.py            # Rule-based filtering and user profile encoding
-│   └── utils.py            # Saves models and recommendations
-├── ui/
-│   └── streamlit_app.py    # Streamlit UI with caching
-├── run.py                  # Script to launch the Streamlit app
-├── README.md
-└── requirements.txt
+<img width="755" height="724" alt="image" src="https://github.com/user-attachments/assets/2d2bc93f-0cc8-4b4a-a4d9-3ef8c33698ea" />
 
 Installation
 
@@ -90,5 +63,5 @@ Or
 
 streamlit run ui/streamlit_app.py
 
-<img width="755" height="724" alt="image" src="https://github.com/user-attachments/assets/2d2bc93f-0cc8-4b4a-a4d9-3ef8c33698ea" />
+
 
