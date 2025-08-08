@@ -127,6 +127,8 @@ pip install -r requirements.txt
 # Run via Python
 python run.py
 
+python3 run.py
+
 # Or run via Streamlit
 streamlit run ui/streamlit_app.py
 ```
