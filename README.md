@@ -69,25 +69,36 @@ An intelligent matchmaking system that combines **rule-based filtering**, **mach
 
 ```
 matchmaking_ai_agent/
-│── data_loader.py
-│── preprocessing.py
-│── train.py
-│── inference.py
-│── ui/
-│   └── streamlit_app.py
-│── models/
-│   ├── matchmaking_model.pkl
-│   ├── tfidf_vectorizer.pkl
-│   ├── label_encoders.pkl
-│── data/
+│
+├── data/
 │   ├── Profiles.csv
 │   ├── LikedUsers.csv
-│   └── ...
-│── requirements.txt
-│── README.md
+│   ├── ...
+│
+├── models/
+│   ├── matchmaking_model.pkl
+│   ├── ...
+│
+├── src/
+│   ├── __init__.py
+│   ├── data_loader.py
+│   ├── preprocessing.py
+│   ├── recommender.py
+│   ├── agent.py
+│   ├── utils.py
+│
+├── ui/
+│   ├── streamlit_app.py
+│   ├── cli.py
+│
+├── tests/
+│   ├── test_data_loader.py
+│   ├── test_agent.py
+│
+├── requirements.txt
+├── README.md
+└── run.py
 ```
-
-<img width="755" height="724" alt="image" src="https://github.com/user-attachments/assets/2d2bc93f-0cc8-4b4a-a4d9-3ef8c33698ea" />
 
 ---
 
@@ -121,7 +132,5 @@ streamlit run ui/streamlit_app.py
 ```
 
 ---
-
-<img width="755" height="724" alt="image" src="https://github.com/user-attachments/assets/2d2bc93f-0cc8-4b4a-a4d9-3ef8c33698ea" />
 
 
