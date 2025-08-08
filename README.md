@@ -1,6 +1,6 @@
 # 🤖 **Matchmaking AI Agent**
 
-An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles for users of Africa Love Match.
+An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles for users.
 
 ---
 
