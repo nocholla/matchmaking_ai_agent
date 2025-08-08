@@ -1,8 +1,3 @@
-🤖 Matchmaking AI Agent
-Got it — here’s your **updated README-style description** with **icons** so it reads more like a modern AI project page while keeping your Matchmaking AI Agent’s technical depth.
-
----
-
 # 🤖 **Matchmaking AI Agent**
 
 An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles for users of Africa Love Match.
