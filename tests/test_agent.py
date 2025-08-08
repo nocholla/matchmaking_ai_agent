@@ -55,7 +55,24 @@ def sample_label_encoders():
 @pytest.fixture
 def sample_tfidf():
     tfidf = TfidfVectorizer(max_features=50, stop_words='english', min_df=1)
-    tfidf.fit(['Love soccer', 'Seeking soul mate', 'Enjoy football'])
+    corpus = [
+        'Love soccer and football',
+        'Seeking soul mate for long-term relationship',
+        'Enjoy football and music',
+        'Passionate about travel and adventure culture learning',
+        'Interested in books reading writing and poetry',
+        'Hiking camping outdoors nature lover',
+        'Foodie cooking baking and culinary arts',
+        'Fitness gym running yoga and health',
+        'Tech enthusiast coding programming ai',
+        'Movies cinema theater and popcorn',
+        'Art painting drawing sketching creativity',
+        'Dance ballet hiphop salsa tango',
+        'Music guitar piano jazz rock',
+        'Photography camera lenses and landscapes',
+        'Gaming video games esports and fun',
+    ]
+    tfidf.fit(corpus)
     return tfidf
 
 def test_apply_rules(sample_profiles, sample_user_profile):
