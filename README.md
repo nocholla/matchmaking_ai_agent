@@ -1,67 +1,64 @@
 # 🤖 **Matchmaking AI Agent**
 
-An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles for users.
+[![Pylint](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/pylint.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/pylint.yml)
+[![Tests - Anaconda](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/tests-anaconda.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/tests-anaconda.yml)
+[![Deploy to Azure](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/deploy-azure.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/deploy-azure.yml)
+
+An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles. Optimized for **soccer enthusiasts** with special boosts for users via **Africa Soccer Kings** compatibility scoring.
+
+---
+
+## 📑 **Table of Contents**
+
+1. [Features](#-features)
+2. [Tech Stack](#-tech-stack)
+3. [Project Structure](#-project-structure)
+4. [Installation](#-installation)
+5. [Usage](#-usage)
+6. [Testing](#-testing)
+7. [Screenshots](#-screenshots)
+8. [Contributing](#-contributing)
+9. [License](#-license)
 
 ---
 
 ## ✨ **Features**
 
-* 📝 **User Profile Input**
-  Users can input details like **age**, **sex**, **seeking preference**, **country**, **language**, **relationship goals**, and a personal bio.
+* 📝 **User Profile Input** — Enter **age**, **sex**, **seeking preference**, **country**, **language**, **relationship goals**, and a personal bio.
+* 🛡 **Rule-Based Filtering** — Matches based on:
 
-* 🛡 **Rule-Based Filtering**
-  Filters profiles based on compatibility rules:
-
-  * Matching sex/seeking preferences
+  * Sex & preference alignment
   * Age range ±5 years
-  * Excluding blocked/declined users
-
-* 📈 **Machine Learning Predictions**
-  Uses a **Gradient Boosting Regressor** to predict compatibility scores, enhanced with **TF-IDF** vectorization of user bios.
-
-* ⚽ **Soccer Enthusiast Detection**
-  Identifies soccer fans for compatibility with **Africa Soccer Kings**, based on keywords in the `aboutMe` field.
-
-* ⚡ **Caching for Performance**
-  **Streamlit caching** (`@st.cache_resource`) optimizes data loading, preprocessing, and model training.
-
-* 💾 **Model Persistence**
-  Saves trained models and encoders for reuse:
+  * Excludes blocked, declined, deleted, or reported users
+* 📊 **Machine Learning Predictions** — Compatibility scoring via **Gradient Boosting Regressor** with **TF-IDF** bio vectorization.
+* ⚽ **Soccer Enthusiast Boost** — Increases scores for users mentioning “soccer” or “football” in their bio.
+* ⚡ **Performance Optimization** — Streamlit’s `@st.cache_resource` speeds up data load and model training.
+* 💾 **Model Persistence** — Saves:
 
   ```
   matchmaking_model.pkl
   tfidf_vectorizer.pkl
   label_encoders.pkl
+  scaler.pkl
   ```
-
-* 📊 **Recommendation Output**
-  Saves **top matches** to `recommendations.csv` with **reasons for compatibility**.
+* 📈 **Recommendation Output** — Stores top matches in `data/recommendations.csv` with reasons.
 
 ---
 
 ## 🛠 **Tech Stack**
 
-* **Programming Language:** 🐍 Python 3.13
-* **Web Framework:** 🌐 Streamlit (interactive UI)
+* **Language:** 🐍 Python 3.13
+* **Web Framework:** 🌐 Streamlit
 * **Machine Learning:**
 
-  * `scikit-learn` → GradientBoostingRegressor, StandardScaler, LabelEncoder, TfidfVectorizer
-  * `pandas` → CSV handling and data manipulation
-  * `numpy` → Numerical computing
-  * `scipy` → Sparse matrix handling
-* **Data Storage:** 📂 CSV files (`Profiles.csv`, `LikedUsers.csv`, etc.)
-* **Model Serialization:** `joblib` for model saving/loading
-* **Dependencies:** Managed with `requirements.txt`
-
----
-
-## 🚀 **Extras**
-
-* ⚡ **Performance Optimization** — Streamlit resource caching for fast reloads
-* 🔍 **Keyword-Based Scoring** — Boosts compatibility for profiles mentioning "love", "soccer", "relationship"
-* 💎 **Subscription Prioritization** — Premium members (`subscribed`, `subscribedEliteOne`) get score boosts
-* 🛠 **Error Handling** — Friendly messages for missing files or invalid inputs
-* 🧩 **Extensibility** — Modular design (e.g., `data_loader.py`, `preprocessing.py`) for easy updates and Firebase integration
+  * `scikit-learn` — GradientBoostingRegressor, StandardScaler, LabelEncoder, TfidfVectorizer
+  * `pandas` — Data handling
+  * `numpy` — Numerical operations
+  * `scipy` — Sparse matrix support
+* **Data Storage:** CSV
+* **Serialization:** `joblib`
+* **Testing:** `pytest`
+* **Config:** YAML (`config.yaml`)
 
 ---
 
@@ -69,35 +66,30 @@ An intelligent matchmaking system that combines **rule-based filtering**, **mach
 
 ```
 matchmaking_ai_agent/
-│
 ├── data/
 │   ├── Profiles.csv
 │   ├── LikedUsers.csv
 │   ├── ...
-│
 ├── models/
 │   ├── matchmaking_model.pkl
 │   ├── ...
-│
 ├── src/
-│   ├── __init__.py
 │   ├── data_loader.py
 │   ├── preprocessing.py
 │   ├── recommender.py
 │   ├── agent.py
 │   ├── utils.py
-│
 ├── ui/
 │   ├── streamlit_app.py
 │   ├── cli.py
-│
 ├── tests/
 │   ├── test_data_loader.py
 │   ├── test_agent.py
-│
+│   ├── ...
+├── config.yaml
 ├── requirements.txt
-├── README.md
-└── run.py
+├── run.py
+└── README.md
 ```
 
 ---
@@ -105,41 +97,77 @@ matchmaking_ai_agent/
 ## 📦 **Installation**
 
 ```bash
-# 1️⃣ Clone the repository
+# Clone repository
 git clone https://github.com/<your-username>/matchmaking_ai_agent.git
 cd matchmaking_ai_agent
 
-# 2️⃣ Create and activate a Python 3.13 virtual environment
+# Create virtual environment
 python3.13 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
-# 3️⃣ Install dependencies
+# Install dependencies
 pip install -r requirements.txt
-
-# 4️⃣ Ensure data CSVs are in the /data directory
 ```
 
 ---
 
-## ▶ **Run the App**
+## ▶ **Usage**
+
+**Run via Streamlit UI:**
 
 ```bash
-# Run via Python
-python run.py
-
-python3 run.py
-
-# Or run via Streamlit
 streamlit run ui/streamlit_app.py
 ```
 
+Open `http://localhost:8501` and fill in profile details.
+
+**Run via CLI:**
+
+```bash
+python run.py --user_id user123 --age 25 --sex Male --seeking Female --country Kenya --language Swahili --relationship_goals "Long-term" --about_me "Love football and travel"
+```
+
+**Output:** Recommendations saved in `data/recommendations.csv`.
+
 ---
-## 🤖 **App**
 
-<img width="1703" height="799" alt="1 Matchmaking Agent " src="https://github.com/user-attachments/assets/53fc99ac-b3be-4b9a-a3c8-97e7fd5f1e41" />
+## 🧪 **Testing**
 
-<img width="3406" height="1560" alt="image" src="https://github.com/user-attachments/assets/7b80bfd4-2678-46d9-8317-4d45bd89681e" />
+```bash
+pytest -v
+```
+
+Run a specific test:
+
+```bash
+pytest tests/test_agent.py -v
+```
 
 ---
 
+## 📷 **Screenshots**
 
+**Main Interface:** <img src="https://github.com/user-attachments/assets/53fc99ac-b3be-4b9a-a3c8-97e7fd5f1e41" width="800"/>
+
+**Recommendations:** <img src="https://github.com/user-attachments/assets/7b80bfd4-2678-46d9-8317-4d45bd89681e" width="800"/>
+
+---
+
+## 🤝 **Contributing**
+
+1. Fork repo
+2. Create branch `feature/YourFeature`
+3. Commit changes
+4. Push and open PR
+
+Please ensure **all tests pass** before PR submission.
+
+---
+
+## 📜 **License**
+
+MIT License — See [LICENSE](LICENSE) file.
+
+---
+
+If you want, I can now **embed GitHub Actions CI/CD badges** at the top so your README shows **Pylint, Tests, and Azure Deploy status** in real time. That would make it fully GitHub-ready. Would you like me to add those?
