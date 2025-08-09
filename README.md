@@ -1,9 +1,5 @@
 # 🤖 **Matchmaking AI Agent**
 
-[![Pylint](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/pylint.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/pylint.yml)
-[![Tests - Anaconda](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/tests-anaconda.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/tests-anaconda.yml)
-[![Deploy to Azure](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/deploy-azure.yml/badge.svg)](https://github.com/nocholla/matchmaking_ai_agent/actions/workflows/deploy-azure.yml)
-
 An intelligent matchmaking system that combines **rule-based filtering**, **machine learning**, and **text analysis** to recommend the most compatible profiles. Optimized for **soccer enthusiasts** with special boosts for users via **Africa Soccer Kings** compatibility scoring.
 
 ---
