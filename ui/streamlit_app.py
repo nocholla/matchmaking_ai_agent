@@ -3,16 +3,20 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import streamlit as st
-from src.data_loader import load_data
+import time
+import logging
+from src.data_loader import load_data, load_config
 from src.preprocessing import preprocess_data
-from src.recommender import train_model, predict_compatibility
+from src.recommender import train_model, predict_compatibility, load_model_and_encoders
 from src.agent import apply_rules, encode_user_profile
 from src.utils import save_models, save_recommendations
-import os
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 @st.cache_resource
-def cached_load_data():
-    return load_data(data_dir="data")
+def cached_load_data(data_dir):
+    return load_data(data_dir=data_dir)
 
 @st.cache_resource
 def cached_preprocess_data(profiles, liked, matched):
@@ -28,29 +32,72 @@ def main():
     Enter a user ID or profile details to get high-compatibility profile suggestions.
     """)
 
-    # Load data
-    (profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids) = cached_load_data()
-    if profiles is None:
-        st.stop()
+    # Load config
+    config = load_config()
+    data_dir = config['data']['data_dir']
+    models_dir = config['model']['models_dir']
 
-    # Preprocess data
-    (profiles, interaction_matrix, X_features, user_to_idx, profile_to_idx, 
-     label_encoders, tfidf) = cached_preprocess_data(profiles, liked, matched)
+    # Initialize variables
+    profiles = None
+    liked = None
+    matched = None
+    blocked_ids = None
+    declined_ids = None
+    deleted_ids = None
+    reported_ids = None
+    interaction_matrix = None
+    X_features = None
+    user_to_idx = None
+    profile_to_idx = None
+    label_encoders = None
+    tfidf = None
+    model = None
+    scaler = None
 
-    # Train model
-    model, scaler = cached_train_model(interaction_matrix, X_features)
+    # Check for existing models
+    model_files = ["matchmaking_model.pkl", "scaler.pkl", "label_encoders.pkl", 
+                   "tfidf_vectorizer.pkl", "user_to_idx.pkl", "profile_to_idx.pkl"]
+    if all(os.path.exists(os.path.join(models_dir, f)) for f in model_files):
+        model, scaler, label_encoders, tfidf, user_to_idx, profile_to_idx = load_model_and_encoders(models_dir)
+        if model is None:
+            st.error("Failed to load models. Please ensure model files are valid.")
+            st.stop()
+        # Load data for profiles and other necessary data
+        start_time = time.time()
+        (profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids) = cached_load_data(data_dir)
+        if profiles is None:
+            st.error("Failed to load data. Please check the data directory and CSV files.")
+            st.stop()
+        # Preprocess data to get X_features
+        (profiles, interaction_matrix, X_features, user_to_idx, profile_to_idx, 
+         label_encoders, tfidf) = cached_preprocess_data(profiles, liked, matched)
+    else:
+        # Load data
+        start_time = time.time()
+        (profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids) = cached_load_data(data_dir)
+        if profiles is None:
+            st.error("Failed to load data. Please check the data directory and CSV files.")
+            st.stop()
 
-    # Save models
-    save_models(model, scaler, label_encoders, tfidf, user_to_idx, profile_to_idx, models_dir="models")
+        # Preprocess data
+        (profiles, interaction_matrix, X_features, user_to_idx, profile_to_idx, 
+         label_encoders, tfidf) = cached_preprocess_data(profiles, liked, matched)
+
+        # Train model
+        model, scaler = cached_train_model(interaction_matrix, X_features)
+
+        # Save models
+        save_models(model, scaler, label_encoders, tfidf, user_to_idx, profile_to_idx, models_dir)
+        logger.info(f"Model training and saving completed in {time.time() - start_time:.2f} seconds")
 
     # User input
     user_id_input = st.text_input("User ID", "user123")
     age_input = st.slider("Age", 18, 70, 25)
     sex_input = st.selectbox("Sex", ["Female", "Male", "unknown"])
     seeking_input = st.selectbox("Seeking", ["Male", "Female", "unknown"])
-    country_input = st.text_input("Country", "unknown")
-    language_input = st.text_input("Language", "unknown")
-    relationship_goals_input = st.text_input("Relationship Goals", "unknown")
+    country_input = st.text_input("Country", "Kenya")
+    language_input = st.text_input("Language", "Swahili")
+    relationship_goals_input = st.text_input("Relationship Goals", "Long-term")
     about_me_input = st.text_area("About Me", "Looking for true love and enjoy soccer!")
 
     if st.button("Find Matches"):
@@ -84,7 +131,7 @@ def main():
             top_matches = filtered_profiles.sort_values('final_score', ascending=False).head(5)
             
             # Save recommendations
-            save_recommendations(top_matches, output_dir="data")
+            save_recommendations(top_matches, output_dir=data_dir)
             
             st.subheader("Top Compatible Profiles:")
             for _, row in top_matches.iterrows():

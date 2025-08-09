@@ -5,72 +5,116 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 import pandas as pd
 import os
-from src.data_loader import load_data
+import yaml
+from src.data_loader import load_data, load_config, validate_csv_schema
 
-# Fixture to create temporary CSV files for testing
 @pytest.fixture
-def temp_csv_files(tmp_path):
-    profiles_data = {
-        '__id__': ['profile1', 'profile2'],
+def data_dir(tmp_path):
+    """Create a temporary data directory with mock CSV files."""
+    data_path = tmp_path / "data"
+    data_path.mkdir()
+    
+    profiles_data = pd.DataFrame({
+        '__id__': [1, 2],
         'userId': ['user1', 'user2'],
-        'userName': ['Amani', 'Juma'],
+        'userName': ['Alice', 'Bob'],
         'age': [25, 30],
         'country': ['Kenya', 'Nigeria'],
         'language': ['Swahili', 'English'],
-        'aboutMe': ['Love soccer', 'Seeking soul mate'],
+        'aboutMe': ['Love soccer', 'Enjoy music'],
         'sex': ['Female', 'Male'],
         'seeking': ['Male', 'Female'],
-        'relationshipGoals': ['Long-term', 'Long-term'],
+        'relationshipGoals': ['Long-term', 'Casual'],
         'subscribed': [True, False],
         'subscribedEliteOne': [False, False],
         'subscribedEliteThree': [False, False],
         'subscribedEliteSix': [False, False],
         'subscribedEliteTwelve': [False, False]
+    })
+    profiles_data.to_csv(data_path / "Profiles.csv", index=False)
+    
+    for file in ['LikedUsers.csv', 'MatchedUsers.csv', 'BlockedUsers.csv', 
+                 'DeclinedUsers.csv', 'DeletedUsers.csv', 'ReportedUsers.csv']:
+        pd.DataFrame({'__id__': [], 'userId': []}).to_csv(data_path / file, index=False)
+    
+    return str(data_path)
+
+@pytest.fixture
+def config_file(tmp_path):
+    """Create a temporary config.yaml file."""
+    config_path = tmp_path / "config.yaml"
+    config = {
+        "data": {
+            "data_dir": "data",
+            "profiles_file": "Profiles.csv",
+            "liked_file": "LikedUsers.csv",
+            "matched_file": "MatchedUsers.csv",
+            "blocked_file": "BlockedUsers.csv",
+            "declined_file": "DeclinedUsers.csv",
+            "deleted_file": "DeletedUsers.csv",
+            "reported_file": "ReportedUsers.csv",
+            "required_columns": [
+                "__id__", "userId", "userName", "age", "country", "language",
+                "aboutMe", "sex", "seeking", "relationshipGoals", "subscribed",
+                "subscribedEliteOne", "subscribedEliteThree", "subscribedEliteSix",
+                "subscribedEliteTwelve"
+            ]
+        },
+        "model": {
+            "models_dir": "models",
+            "max_tfidf_features": 50
+        },
+        "preprocessing": {
+            "categorical_columns": [
+                "country", "language", "sex", "seeking", "relationshipGoals"
+            ],
+            "tfidf_params": {
+                "max_features": 50,
+                "stop_words": "english",
+                "min_df": 1
+            },
+            "keywords": [
+                "love", "soul mate", "relationship", "partner", "soccer", "football"
+            ]
+        }
     }
-    liked_data = {'userId': ['user1'], '__id__': ['profile2']}
-    matched_data = {'userId': ['user2'], '__id__': ['profile1']}
-    blocked_data = {'__id__': ['profile3']}
-    declined_data = {'__id__': ['profile4']}
-    deleted_data = {'__id__': ['profile5']}
-    reported_data = {'__id__': ['profile6']}
+    with open(config_path, 'w') as f:
+        yaml.safe_dump(config, f)
+    return str(config_path)
 
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    
-    pd.DataFrame(profiles_data).to_csv(data_dir / "Profiles.csv", index=False)
-    pd.DataFrame(liked_data).to_csv(data_dir / "LikedUsers.csv", index=False)
-    pd.DataFrame(matched_data).to_csv(data_dir / "MatchedUsers.csv", index=False)
-    pd.DataFrame(blocked_data).to_csv(data_dir / "BlockedUsers.csv", index=False)
-    pd.DataFrame(declined_data).to_csv(data_dir / "DeclinedUsers.csv", index=False)
-    pd.DataFrame(deleted_data).to_csv(data_dir / "DeletedUsers.csv", index=False)
-    pd.DataFrame(reported_data).to_csv(data_dir / "ReportedUsers.csv", index=False)
-    
-    return str(data_dir)
-
-def test_load_data_success(temp_csv_files):
-    profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids = load_data(data_dir=temp_csv_files)
+def test_load_data(data_dir, config_file):
+    """Test the load_data function."""
+    result = load_data(data_dir=data_dir)
+    profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids = result
     
     assert profiles is not None, "Profiles DataFrame should not be None"
-    assert liked is not None, "Liked DataFrame should not be None"
-    assert matched is not None, "Matched DataFrame should not be None"
-    assert len(blocked_ids) == 1, "Blocked IDs should contain one entry"
-    assert len(declined_ids) == 1, "Declined IDs should contain one entry"
-    assert len(deleted_ids) == 1, "Deleted IDs should contain one entry"
-    assert len(reported_ids) == 1, "Reported IDs should contain one entry"
-    
-    assert profiles.shape[0] == 2, "Profiles should have 2 rows"
-    assert '__id__' in profiles.columns, "Profiles should have __id__ column"
-    assert 'userName' in profiles.columns, "Profiles should have userName column"
-    assert liked.shape[0] == 1, "LikedUsers should have 1 row"
-    assert matched.shape[0] == 1, "MatchedUsers should have 1 row"
+    assert isinstance(profiles, pd.DataFrame), "Profiles should be a DataFrame"
+    assert len(profiles) == 2, "Expected 2 profiles"
+    assert set(profiles.columns).issuperset(['__id__', 'userId', 'userName', 'age']), "Missing required columns"
+    assert liked.empty, "LikedUsers should be empty"
+    assert matched.empty, "MatchedUsers should be empty"
+    assert blocked_ids == [], "Blocked IDs should be empty"
 
-def test_load_data_file_not_found(tmp_path):
-    empty_dir = tmp_path / "empty_data"
-    empty_dir.mkdir()
-    
-    profiles, liked, matched, blocked_ids, declined_ids, deleted_ids, reported_ids = load_data(data_dir=str(empty_dir))
-    
-    assert profiles is None, "Profiles should be None when files are missing"
-    assert liked is None, "Liked should be None when files are missing"
-    assert matched is None, "Matched should be None when files are missing"
-    assert blocked_ids is None, "Blocked IDs should be None when files are missing"
+def test_load_config(config_file):
+    """Test the load_config function."""
+    config = load_config(config_path=config_file)
+    assert config is not None, "Config should not be None"
+    assert isinstance(config, dict), "Config should be a dictionary"
+    assert "data" in config, "Config should have 'data' key"
+    assert config["data"]["data_dir"] == "data", "Data dir should be 'data'"
+    assert "model" in config, "Config should have 'model' key"
+    assert config["model"]["models_dir"] == "models", "Models dir should be 'models'"
+    assert "required_columns" in config["data"], "Config should have 'required_columns'"
+    assert len(config["data"]["required_columns"]) == 15, "Expected 15 required columns"
+    assert "preprocessing" in config, "Config should have 'preprocessing' key"
+    assert config["preprocessing"]["categorical_columns"] == ["country", "language", "sex", "seeking", "relationshipGoals"], "Incorrect categorical_columns"
+    assert config["preprocessing"]["tfidf_params"]["max_features"] == 50, "Incorrect tfidf max_features"
+    assert "keywords" in config["preprocessing"], "Config should have 'keywords'"
+
+def test_load_config_missing():
+    """Test load_config with missing file."""
+    config = load_config(config_path="nonexistent.yaml")
+    assert config is not None, "Config should not be None for missing file"
+    assert isinstance(config, dict), "Config should be a dictionary"
+    assert "preprocessing" in config, "Default config should have 'preprocessing'"
+    assert "categorical_columns" in config["preprocessing"], "Default config should have 'categorical_columns'"

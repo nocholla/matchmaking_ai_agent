@@ -1,0 +1,46 @@
+data:
+  data_dir: "data"
+  profiles_file: "Profiles.csv"
+  liked_file: "LikedUsers.csv"
+  matched_file: "MatchedUsers.csv"
+  blocked_file: "BlockedUsers.csv"
+  declined_file: "DeclinedUsers.csv"
+  deleted_file: "DeletedUsers.csv"
+  reported_file: "ReportedUsers.csv"
+  required_columns:
+    - __id__
+    - userId
+    - userName
+    - age
+    - country
+    - language
+    - aboutMe
+    - sex
+    - seeking
+    - relationshipGoals
+    - subscribed
+    - subscribedEliteOne
+    - subscribedEliteThree
+    - subscribedEliteSix
+    - subscribedEliteTwelve
+model:
+  models_dir: "models"
+  max_tfidf_features: 50
+preprocessing:
+  categorical_columns:
+    - country
+    - language
+    - sex
+    - seeking
+    - relationshipGoals
+  tfidf_params:
+    max_features: 50
+    stop_words: english
+    min_df: 1
+  keywords:
+    - love
+    - soul mate
+    - relationship
+    - partner
+    - soccer
+    - football

@@ -3,6 +3,12 @@ from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.preprocessing import StandardScaler
 import streamlit as st
 import time
+import logging
+import joblib
+import os
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def train_model(interaction_matrix, X_features):
     """
@@ -30,7 +36,7 @@ def train_model(interaction_matrix, X_features):
     model = GradientBoostingRegressor(n_estimators=50, max_depth=3, random_state=42)
     model.fit(X_scaled, y_train)
     
-    st.write(f"Model Training Time: {time.time() - start_time:.2f} seconds")
+    logger.info(f"Model Training Time: {time.time() - start_time:.2f} seconds")
     return model, scaler
 
 def predict_compatibility(model, scaler, user_id, filtered_profiles, X_features, user_to_idx, profile_to_idx):
@@ -60,3 +66,21 @@ def predict_compatibility(model, scaler, user_id, filtered_profiles, X_features,
                                        filtered_profiles['goal_match'].astype(int) * 0.1)
     
     return filtered_profiles
+
+def load_model_and_encoders(models_dir="models"):
+    """
+    Load trained model and encoders from models_dir.
+    Returns: model, scaler, label_encoders, tfidf, user_to_idx, profile_to_idx
+    """
+    try:
+        model = joblib.load(os.path.join(models_dir, "matchmaking_model.pkl"))
+        scaler = joblib.load(os.path.join(models_dir, "scaler.pkl"))
+        label_encoders = joblib.load(os.path.join(models_dir, "label_encoders.pkl"))
+        tfidf = joblib.load(os.path.join(models_dir, "tfidf_vectorizer.pkl"))
+        user_to_idx = joblib.load(os.path.join(models_dir, "user_to_idx.pkl"))
+        profile_to_idx = joblib.load(os.path.join(models_dir, "profile_to_idx.pkl"))
+        logger.info(f"Successfully loaded models and encoders from {models_dir}")
+        return model, scaler, label_encoders, tfidf, user_to_idx, profile_to_idx
+    except FileNotFoundError as e:
+        logger.error(f"Model file not found: {e}")
+        return None, None, None, None, None, None
